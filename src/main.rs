@@ -1,5 +1,5 @@
-use std::env;
 use clap::Parser;
+use std::env;
 
 extern crate dirs;
 
@@ -7,6 +7,12 @@ extern crate dirs;
 #[command(author, version, about, long_about = None)]
 struct Args {
     name: String,
+
+    #[arg(short, long)]
+    no_vs: bool,
+
+    #[arg(short, long)]
+    rider: bool,
 }
 
 fn main() {
@@ -63,8 +69,19 @@ fn main() {
     .unwrap();
 
     println!("Project {} created", project_name);
-    println!("Opening in Visual Studio...");
 
+    if !args.no_vs {
+        println!("Opening in Visual Studio...");
+        open_vs(&format!("{}/{}.sln", project_name, project_name));
+    }
+
+    if args.rider {
+        println!("Opening in Rider...");
+        open_rider(&format!("{}/{}.sln", project_name, project_name));
+    }
+}
+
+fn open_vs(proj: &str) {
     let devenv_paths = [
         r#"C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe"#,
         r#"C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe"#,
@@ -75,11 +92,28 @@ fn main() {
     devenv_paths.iter().for_each(|path| {
         if std::fs::metadata(path).is_ok() {
             std::process::Command::new(path)
-                .arg(format!("{}/{}.sln", project_name, project_name))
+                .arg(proj)
                 .spawn()
                 .expect("Failed to open Visual Studio");
+        }
+    });
+}
 
-            std::process::exit(0);
+fn open_rider(proj: &str) {
+    let home_dir = dirs::home_dir().unwrap();
+    let appdata_path = format!(
+        "{}/AppData/Local/Programs/Rider/bin/rider64.exe",
+        home_dir.to_str().unwrap()
+    );
+
+    let rider_paths = ["rider64.exe", &appdata_path];
+
+    rider_paths.iter().for_each(|path| {
+        if std::fs::metadata(path).is_ok() {
+            std::process::Command::new(path)
+                .arg(proj)
+                .spawn()
+                .expect("Failed to open Rider");
         }
     });
 }
