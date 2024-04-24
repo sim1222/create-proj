@@ -28,8 +28,7 @@ fn main() {
     let sln_file = include_str!("template/ex1-1-4.sln");
     let sln_file = sln_file.replace("{{{template}}}", project_name);
 
-    let cpp_file = include_str!("template/ex1-1-4/ex1-1-4.cpp");
-    let cpp_file = cpp_file.replace("{{{template}}}", project_name);
+    let cpp_file = include_bytes!("template/ex1-1-4/ex1-1-4.cpp");
 
     let vcxproj_file = include_str!("template/ex1-1-4/ex1-1-4.vcxproj");
     let vcxproj_file = vcxproj_file
