@@ -25,7 +25,20 @@ fn main() {
 
     let project_name = args.name.as_str();
 
-    std::fs::create_dir(project_name).unwrap();
+    if let Err(e) = std::fs::create_dir(project_name) {
+        println!("Failed to create project: {}", e);
+        println!("Try opening exists project...");
+        if !args.no_vs {
+            println!("Opening in Visual Studio...");
+            open_vs(&format!("{}/{}.sln", project_name, project_name));
+        }
+
+        if args.rider {
+            println!("Opening in Rider...");
+            open_rider(&format!("{}/{}.sln", project_name, project_name));
+        }
+        std::process::exit(0);
+    };
 
     let project_dir = format!("{}/{}", project_name, project_name);
 
